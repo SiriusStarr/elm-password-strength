@@ -8,13 +8,12 @@ import Dict.Extra as DictX
 import Internal.Zxcvbn.AdjacencyGraphs exposing (AdjacencyDict(..), dvorak, keypad, macKeypad, qwerty)
 import Internal.Zxcvbn.FrequencyLists exposing (FrequencyDict, englishWikipedia, femaleNames, maleNames, passwords, surnames, usTvAndFilm)
 import Internal.Zxcvbn.L33tTable exposing (SubstitutionDict, l33tTable)
-import Zxcvbn.MatchTypes exposing (DictionaryDetails(..), MatchDetails(..))
-
 import Internal.Zxcvbn.MatchTypes exposing (Match, TranslationDict, sortMatches)
 import Internal.Zxcvbn.Scoring exposing (mostGuessableMatchSequence, referenceYear)
 import List.Extra as ListX
 import Regex exposing (Regex)
 import Set exposing (Set)
+import Zxcvbn.MatchTypes exposing (DictionaryDetails(..), MatchDetails(..))
 
 
 {-| A convenience alias for a `FrequencyDict` with associated name, e.g. "englishWikipedia".
