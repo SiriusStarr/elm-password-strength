@@ -13,7 +13,7 @@ more secure password).  Information on the various modules follows.
 ### ZxcvbnPlus
 
 `PasswordStrength.ZxcvbnPlus` is a native Elm implementation of the popular
-zxcvbn password strength javascript library, with some optimizations and fixes.
+zxcvbn password strength javascript library, with some tweaks and fixes.
 `Zxcvbn` is available if you require exactly identical results to the reference
 implementation, however. More information on zxcvbn may be found on its
 [GitHub](https://github.com/dropbox/zxcvbn).

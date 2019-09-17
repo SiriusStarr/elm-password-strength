@@ -1,4 +1,24 @@
-module Internal.Zxcvbn.Matching exposing (NamedAdjacencyDict, NamedFrequencyDict, adjacencyDicts, dateMatch, dictionaryMatch, enumerateL33tSubs, frequencyDicts, l33tMatch, mapIntsToDmy, matchAsNoSeparatorDate, matchAsSeparatorDate, omnimatch, regexMatch, relevantL33tSubtable, repeatMatch, reverseDictionaryMatch, sequenceMatch, spatialMatch, translate)
+module Internal.Zxcvbn.Matching exposing
+    ( NamedAdjacencyDict
+    , NamedFrequencyDict
+    , adjacencyDicts
+    , dateMatch
+    , dictionaryMatch
+    , enumerateL33tSubs
+    , frequencyDicts
+    , l33tMatch
+    , mapIntsToDmy
+    , matchAsNoSeparatorDate
+    , matchAsSeparatorDate
+    , omnimatch
+    , regexMatch
+    , relevantL33tSubtable
+    , repeatMatch
+    , reverseDictionaryMatch
+    , sequenceMatch
+    , spatialMatch
+    , translate
+    )
 
 {-| Given a password string, handles finding all likely matches within it, e.g. sequences like "abcdef", common words like "password", dates, etc.
 -}
@@ -851,6 +871,7 @@ addRepeatMatch userPatterns offset matches substring =
 -}
 recentYearRegex : Regex
 recentYearRegex =
+    -- ! This will need updating in 2020
     Regex.fromString "19\\d\\d|200\\d|201\\d"
         |> Maybe.withDefault Regex.never
 

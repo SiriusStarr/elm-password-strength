@@ -1,5 +1,6 @@
-module Internal.Zxcvbn.Scoring exposing
-    ( dateGuesses
+module Internal.ZxcvbnPlus.Scoring exposing
+    ( adjacencyGuesses
+    , dateGuesses
     , dictionaryGuesses
     , estimateGuesses
     , isAllCaps
@@ -11,10 +12,8 @@ module Internal.Zxcvbn.Scoring exposing
     , mostGuessableMatchSequenceHelper
     , nCk
     , referenceYear
-    , regexGuesses
     , repeatGuesses
     , sequenceGuesses
-    , spatialGuesses
     , uppercaseVariations
     )
 
@@ -25,9 +24,9 @@ import Array exposing (Array)
 import Dict exposing (Dict)
 import Dict.Extra as DictX
 import Internal.Zxcvbn.AdjacencyGraphs exposing (keyboardAverageDegree, keyboardStartingPositions, keypadAverageDegree, keypadStartingPositions)
-import Internal.Zxcvbn.MatchTypes exposing (Match, TranslationDict, sortMatches)
+import Internal.ZxcvbnPlus.MatchTypes exposing (Match, TranslationDict)
 import List.Extra as ListX
-import Zxcvbn.MatchTypes exposing (DictionaryDetails(..), MatchDetails(..), ScoredMatch)
+import ZxcvbnPlus.MatchTypes exposing (DateDetails(..), DictionaryDetails(..), KeyboardLayout(..), MatchDetails(..), OrdinalSequence(..), ScoredMatch)
 
 
 {-| Minimum guesses to crack a year, regardless of date.
@@ -54,97 +53,75 @@ nCk n k =
         |> round
 
 
-{-| Given match token and sequence-specific data, estimate number of guesses to crack a sequence match.
+{-| Given match token and sequence-specific data, estimate number of guesses to crack a sequence match. Delta is considered, as it take more guesses to try increasing delta size.
 -}
-sequenceGuesses : String -> { a | ascending : Bool } -> Int
-sequenceGuesses token { ascending } =
+sequenceGuesses : String -> { sequence : OrdinalSequence, delta : Int, obviousStart : Bool } -> Int
+sequenceGuesses token { sequence, delta, obviousStart } =
     let
         baseGuesses =
-            case String.uncons token of
-                Just ( firstChar, _ ) ->
-                    if List.member firstChar [ 'a', 'A', 'z', 'Z', '0', '1', '9' ] then
-                        -- Lower guesses for obvious starting points
-                        4
+            if obviousStart then
+                -- Lower guesses for obvious starting points
+                4
 
-                    else if Char.isDigit firstChar then
+            else
+                case sequence of
+                    Digits ->
                         10
 
-                    else
-                        -- Could give a higher base for uppercase, assigning 26 to both upper and lower sequences is more conservative.
+                    _ ->
+                        -- ! Unicode space could be improved
                         26
-
-                _ ->
-                    26
     in
-    if ascending then
-        baseGuesses * String.length token
+    if delta > 0 then
+        -- Add guesses for increased delta
+        baseGuesses * delta * String.length token
 
     else
         -- Need to try a descending sequence in addition to every ascending sequence -> 2x guesses
-        2 * baseGuesses * String.length token
-
-
-{-| Given match token, estimate number of guesses to crack a regex match.
--}
-regexGuesses : String -> Int
-regexGuesses token =
-    -- ! This simply isn't used, since the only regex is `recentYear`
-    -- let
-    -- charClassBases =
-    --     Dict.fromList
-    --         [ ( "alphaLower", 26 )
-    --         , ( "alphaUpper", 26 )
-    --         , ( "alpha", 52 )
-    --         , ( "alphanumeric", 62 )
-    --         , ( "digits", 10 )
-    --         , ( "symbols", 33 )
-    --         ]
-    -- len =
-    --     String.length token
-    -- in
-    -- case Dict.get regexName charClassBases of
-    --     Just i ->
-    --         i ^ len
-    --     Nothing ->
-    -- if regexName == "recentYear" then
-    -- Conservative estimate of year space: num years from referenceYear.  If year is close to referenceYear, estimate a year space of minYearSpace.
-    String.toInt token
-        |> Maybe.map (\i -> abs (i - referenceYear))
-        |> Maybe.map (max minYearSpace)
-        |> Maybe.withDefault 1
+        2 * baseGuesses * abs delta * String.length token
 
 
 {-| Given date-specific match data, estimate guesses to crack a date match.
 -}
-dateGuesses : { a | separator : String, year : Int } -> Int
-dateGuesses { separator, year } =
+dateGuesses : { dateDetails : DateDetails, year : Int } -> Int
+dateGuesses { dateDetails, year } =
     -- Base guesses: (year distance from referenceYear) * numDays * numYears
     let
         yearSpace =
             max minYearSpace <| abs (year - referenceYear)
     in
-    if String.isEmpty separator then
-        yearSpace * 365
+    case dateDetails of
+        RecentYear ->
+            yearSpace
 
-    else
-        -- Add factor of 4 for separator selection (one of ~4 choices)
-        yearSpace * 1460
+        FullDate { separator } ->
+            case separator of
+                Nothing ->
+                    yearSpace * 365
+
+                Just _ ->
+                    -- Add factor of 4 for separator selection (one of ~4 choices). This is conservative.
+                    yearSpace * 1460
 
 
 {-| Given a match token and spatial-specific match data, estimate guesses to crack a spatial match.
 -}
-spatialGuesses :
+adjacencyGuesses :
     String
-    -> { a | graph : String, turns : Int, shiftedCount : Int }
+    -> { layout : KeyboardLayout, turns : Int, shiftedKeys : Int }
     -> Int
-spatialGuesses token { graph, turns, shiftedCount } =
+adjacencyGuesses token { layout, turns, shiftedKeys } =
     let
         ( s, d ) =
-            if graph == "qwerty" || graph == "dvorak" then
-                ( keyboardStartingPositions, keyboardAverageDegree )
+            case layout of
+                Qwerty ->
+                    ( keyboardStartingPositions, keyboardAverageDegree )
 
-            else
-                ( keypadStartingPositions, keypadAverageDegree )
+                Dvorak ->
+                    ( keyboardStartingPositions, keyboardAverageDegree )
+
+                _ ->
+                    ( keypadStartingPositions, keypadAverageDegree )
 
         l =
             String.length token
@@ -165,14 +142,14 @@ spatialGuesses token { graph, turns, shiftedCount } =
         |> List.sum
         -- Add extra guesses for shifted keys. (% instead of 5, A instead of a.).  Math is similar to extra guesses of l33t substitutions in dictionary matches.
         |> (\i ->
-                if shiftedCount == l then
+                if shiftedKeys == l then
                     -- Double guesses for all caps
                     round <| i * 2
 
                 else
                     let
                         shiftedVariations =
-                            calcSubVariations shiftedCount (l - shiftedCount)
+                            calcSubVariations shiftedKeys (l - shiftedKeys)
                                 |> toFloat
                     in
                     round <| i * shiftedVariations
@@ -191,10 +168,10 @@ dictionaryGuesses token { rank, dictionaryDetails } =
         ReverseDictionary ->
             2 * baseGuesses
 
-        L33tDictionary { sub } ->
+        L33tDictionary sub ->
             baseGuesses * l33tVariations sub token
 
-        Dictionary ->
+        NormalDictionary ->
             baseGuesses
 
 
@@ -310,17 +287,14 @@ estimateGuesses match password =
                 DictionaryMatch r ->
                     dictionaryGuesses match.token r
 
-                SpatialMatch r ->
-                    spatialGuesses match.token r
+                KeyAdjacencyMatch r ->
+                    adjacencyGuesses match.token r
 
-                SequenceMatch r ->
+                OrdinalSequenceMatch r ->
                     sequenceGuesses match.token r
 
                 RepeatMatch r ->
                     repeatGuesses r
-
-                RegexMatch _ ->
-                    regexGuesses match.token
 
                 DateMatch r ->
                     dateGuesses r
@@ -381,8 +355,6 @@ mostGuessableMatchSequenceHelper excludeAdditive password matches =
             -- If two matches have the same i & j, only keep the one with fewer guesses
             ListX.gatherEqualsBy .i mByJ
                 |> List.map (\( head, tail ) -> Maybe.withDefault head (ListX.minimumBy .guesses (head :: tail)))
-                -- Small detail: for deterministic output, sort each sublist by i.
-                |> sortMatches
 
         matchesByJ =
             -- Partition matches into sublists according to ending index j, keeping only best matches
@@ -434,7 +406,6 @@ mostGuessableMatchSequenceHelper excludeAdditive password matches =
         |> (\( optimalMatchSequence, guesses ) ->
                 { password = password
                 , guesses = guesses
-                , guessesLog10 = logBase 10 <| toFloat guesses
                 , sequence = optimalMatchSequence
                 }
            )
@@ -456,7 +427,6 @@ maxValue =
 type alias ScoredPassword =
     { password : String
     , guesses : Int
-    , guessesLog10 : Float
     , sequence : List ScoredMatch
     }
 
@@ -515,7 +485,7 @@ calcSubVariations a b =
         |> max 1
 
 
-{-| "Space" of bruteforce matches, e.g `bruteforceCardinality ^ length`
+{-| "Space" of bruteforce matches, e.g bruteforce guesses are `bruteforceCardinality ^ length`.
 -}
 bruteforceCardinality : Int
 bruteforceCardinality =
@@ -547,16 +517,11 @@ minSubmatchGuessesMultiChar =
 -}
 scoreMatch : String -> Match -> ScoredMatch
 scoreMatch password m =
-    let
-        guesses =
-            estimateGuesses m password
-    in
     { pattern = m.pattern
     , token = m.token
     , i = m.i
     , j = m.j
-    , guesses = guesses
-    , guessesLog10 = logBase 10 <| toFloat guesses
+    , guesses = estimateGuesses m password
     }
 
 
@@ -578,12 +543,8 @@ type alias OptimalRecord =
 -}
 makeBruteforceMatch : String -> ( Int, Int ) -> ScoredMatch
 makeBruteforceMatch password ( i, j ) =
-    let
-        token =
-            String.slice i (j + 1) password
-    in
     { pattern = BruteforceMatch
-    , token = token
+    , token = String.slice i (j + 1) password
     , i = i
     , j = j
     }
@@ -728,7 +689,6 @@ unwind n optimal =
                                                 , token = ""
                                                 , pattern = BruteforceMatch
                                                 , guesses = -1
-                                                , guessesLog10 = -1
                                                 }
                                 in
                                 ( ( currK - 1, currL - 1 ), m.i - 1, m :: acc )

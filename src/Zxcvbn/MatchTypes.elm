@@ -1,6 +1,6 @@
 module Zxcvbn.MatchTypes exposing (ScoredMatch, MatchDetails(..), DictionaryDetails(..))
 
-{-| This module is not necessary for normal use of the `Zxcvbn` module; instead, it contains the types necessary for examining the actual matches in the most-guessable sequence contained in `Zxcvbn.sequence`.
+{-| This module is not necessary for normal use of the `Zxcvbn` module; instead, it contains the types necessary for examining the actual matches in the most-guessable sequence contained in `ZxcvbnResult.sequence`.
 
 
 ## Types
