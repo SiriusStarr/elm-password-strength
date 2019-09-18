@@ -1132,11 +1132,18 @@ parseSingleDigit =
 -}
 isObviousStart : Char -> Bool
 isObviousStart c =
-    if List.member c [ 'a', 'A', 'z', 'Z', '0', '1', '9' ] then
+    if Set.member c obviousStartSet then
         True
 
     else
         False
+
+
+{-| Set of characters constituing obvious starts for a sequence.
+-}
+obviousStartSet : Set Char
+obviousStartSet =
+    Set.fromList [ 'a', 'A', 'z', 'Z', '0', '1', '9' ]
 
 
 {-| Repeat type used in repeat matching.

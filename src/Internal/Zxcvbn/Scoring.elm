@@ -27,6 +27,7 @@ import Dict.Extra as DictX
 import Internal.Zxcvbn.AdjacencyGraphs exposing (keyboardAverageDegree, keyboardStartingPositions, keypadAverageDegree, keypadStartingPositions)
 import Internal.Zxcvbn.MatchTypes exposing (Match, TranslationDict, sortMatches)
 import List.Extra as ListX
+import Set exposing (Set)
 import Zxcvbn.MatchTypes exposing (DictionaryDetails(..), MatchDetails(..), ScoredMatch)
 
 
@@ -62,7 +63,7 @@ sequenceGuesses token { ascending } =
         baseGuesses =
             case String.uncons token of
                 Just ( firstChar, _ ) ->
-                    if List.member firstChar [ 'a', 'A', 'z', 'Z', '0', '1', '9' ] then
+                    if Set.member firstChar obviousStartSet then
                         -- Lower guesses for obvious starting points
                         4
 
@@ -740,3 +741,10 @@ unwind n optimal =
                         optimal.m
             in
             ( optimalMatchSequence, g )
+
+
+{-| Set of characters constituing obvious starts for a sequence.
+-}
+obviousStartSet : Set Char
+obviousStartSet =
+    Set.fromList [ 'a', 'A', 'z', 'Z', '0', '1', '9' ]
