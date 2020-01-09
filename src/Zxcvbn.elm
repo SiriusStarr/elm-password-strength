@@ -18,7 +18,7 @@ For further detail and motivation, please refer to the USENIX Security '16 [pape
 
 ## Usage Notes
 
-The results returned by this package should in all cases be exactly identical to those returned by the reference (javascript) implementation. The sole exception may be with exceedingly difficult to crack passwords: As Elm lacks `Number.MAX_VALUE`, a value of `1.7976931348623157e+308` is used instead, which may differ slightly from `Number.MAX_VALUE`. If you do not require exactly identical results, consider using `ZxcvbnPlus` instead, which is a slightly more optimized and "Elm"-y implementation.
+The results returned by this package should in all cases be exactly identical to those returned by the reference (javascript) implementation, with two exceptions. Firstly, this has updated the recent year regex to include the new decade (as the reference implementation only checked up to `201*`). Secondly, exceedingly difficult to crack passwords may differ; as Elm lacks `Number.MAX_VALUE`, a value of `1.7976931348623157e+308` is used instead, which may differ slightly from `Number.MAX_VALUE`. If you do not require exactly identical results, consider using `ZxcvbnPlus` instead, which is a slightly more optimized and "Elm"-y implementation.
 
 The computational performance of this library is quite good, with essentially instantaneous results for normal length passwords and barely perceptible delays even with ~100-character passwords.
 

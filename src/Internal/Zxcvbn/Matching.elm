@@ -374,7 +374,7 @@ repeatMatch userPatterns password =
         |> sortMatches
 
 
-{-| Find matches based on regexes. Per reference implementation, this only finds recent years (1900--2019).
+{-| Find matches based on regexes. Unlike reference implementation, this has been extended to work through 2029.
 -}
 regexMatch : String -> List Match
 regexMatch password =
@@ -867,12 +867,12 @@ addRepeatMatch userPatterns offset matches substring =
             ( Nothing, matches )
 
 
-{-| Regex used to find recent years (1900--2019) for Regex matching.
+{-| Regex used to find recent years (1900--2020) for Regex matching.
 -}
 recentYearRegex : Regex
 recentYearRegex =
-    -- ! This will need updating in 2020
-    Regex.fromString "19\\d\\d|200\\d|201\\d"
+    -- ! This will need updating in 2021
+    Regex.fromString "19\\d\\d|200\\d|201\\d|2020"
         |> Maybe.withDefault Regex.never
 
 

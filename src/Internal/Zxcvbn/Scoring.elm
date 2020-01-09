@@ -42,8 +42,8 @@ minYearSpace =
 -}
 referenceYear : Int
 referenceYear =
-    -- ! A new version will need to be pushed every year, since elm cannot get the current year.
-    2019
+    -- ! A new version will need to be pushed every year, since Elm cannot get the current year.
+    2020
 
 
 {-| n choose k

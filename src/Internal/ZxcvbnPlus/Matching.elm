@@ -1035,8 +1035,8 @@ parseRecentYear =
 -}
 checkRecentYear : Int -> Parser Int
 checkRecentYear y =
-    -- ! This needs updating in 2020
-    if 1900 <= y && y <= 2019 then
+    -- ! This needs updating in 2021
+    if 1900 <= y && y <= 2020 then
         P.succeed y
 
     else
