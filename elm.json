@@ -3,7 +3,7 @@
     "name": "SiriusStarr/elm-password-strength",
     "summary": "Provides libraries for calculating password security and providing feedback.",
     "license": "GPL-3.0",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "exposed-modules": [
         "Zxcvbn",
         "Zxcvbn.MatchTypes",
