@@ -1,6 +1,6 @@
 # PasswordStrength
 
-![Build Status](https://github.com/SiriusStarr/elm-password-strength/workflows/ElmCI/badge.svg)
+![Build Status](https://github.com/SiriusStarr/elm-password-strength/workflows/Tests/badge.svg)
 
 ## Introduction
 

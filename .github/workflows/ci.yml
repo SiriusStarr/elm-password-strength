@@ -1,4 +1,4 @@
-name: ElmCI
+name: Tests
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
           elm-version: 0.19.1
 
       - name: Build
-        run: elm make src/Main.elm --output elm.js
+        run: elm make
 
       - name: Test
         run: elm-test
