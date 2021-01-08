@@ -1,6 +1,6 @@
 # PasswordStrength
 
-[![Build Status](https://travis-ci.com/SiriusStarr/elm-password-strength.svg?branch=master)](https://travis-ci.com/SiriusStarr/elm-password-strength)
+![Build Status](https://github.com/SiriusStarr/elm-password-strength/workflows/ElmCI/badge.svg)
 
 ## Introduction
 
@@ -86,6 +86,13 @@ Cons:
   intermediate steps).
 
 ## Changelog
+
+### 1.0.2
+
+* Update reference year to 2021
+* Update recent year regex for `Zxcvbn` to include 2021
+* Add tests for 2021 as a recent year
+* Switch to Github CI
 
 ### 1.0.1
 

@@ -867,12 +867,12 @@ addRepeatMatch userPatterns offset matches substring =
             ( Nothing, matches )
 
 
-{-| Regex used to find recent years (1900--2020) for Regex matching.
+{-| Regex used to find recent years (1900--2021) for Regex matching.
 -}
 recentYearRegex : Regex
 recentYearRegex =
-    -- ! This will need updating in 2021
-    Regex.fromString "19\\d\\d|200\\d|201\\d|2020"
+    -- ! This will need updating in 2022
+    Regex.fromString "19\\d\\d|200\\d|201\\d|2020|2021"
         |> Maybe.withDefault Regex.never
 
 

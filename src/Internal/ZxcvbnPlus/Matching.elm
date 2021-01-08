@@ -1035,8 +1035,8 @@ parseRecentYear =
 -}
 checkRecentYear : Int -> Parser Int
 checkRecentYear y =
-    -- ! This needs updating in 2021
-    if 1900 <= y && y <= 2020 then
+    -- ! This needs updating in 2022
+    if 1900 <= y && y <= 2021 then
         P.succeed y
 
     else
@@ -1132,11 +1132,7 @@ parseSingleDigit =
 -}
 isObviousStart : Char -> Bool
 isObviousStart c =
-    if Set.member c obviousStartSet then
-        True
-
-    else
-        False
+    Set.member c obviousStartSet
 
 
 {-| Set of characters constituing obvious starts for a sequence.

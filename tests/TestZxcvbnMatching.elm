@@ -908,10 +908,10 @@ suiteRegexMatch =
             \() ->
                 let
                     patterns =
-                        [ "1922", "2017", "2020" ]
+                        [ "1922", "2017", "2020", "2021" ]
 
                     names =
-                        [ "recentYear", "recentYear", "recentYear" ]
+                        [ "recentYear", "recentYear", "recentYear", "recentYear" ]
 
                     matches =
                         List.concatMap regexMatch patterns

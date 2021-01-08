@@ -955,10 +955,10 @@ suiteDateMatch =
             \() ->
                 let
                     passwords =
-                        [ "1922", "2017", "2020" ]
+                        [ "1922", "2017", "2020", "2021" ]
 
                     years =
-                        [ 1922, 2017, 2020 ]
+                        [ 1922, 2017, 2020, 2021 ]
 
                     matches =
                         List.concatMap dateMatch passwords

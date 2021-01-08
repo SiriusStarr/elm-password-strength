@@ -108,7 +108,7 @@ suiteSequenceGuesses =
 suiteRegexGuesses : Test
 suiteRegexGuesses =
     describe "regexGuesses"
-        [ -- ! These simlpy aren't used so they have been optimized out
+        [ -- ! These simply aren't used so they have been optimized out
           --     test "Guesses of 26^7 for 7-char lowercase regex" <|
           --     \() ->
           --         let
